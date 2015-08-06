@@ -22,16 +22,18 @@ contract MurmurHash {
 
                 // Iterate over 4-byte chunks of `key`
                 for (var i = 0; i < numChunks; i ++) {
-                        bytes32 k;
-
-                        // extract the 4-bytes
-                        bytes4 b1 = key[(4 * i)] << 3 * 8;
-                        bytes4 b2 = key[(4 * i) + 1] << 2 * 8;
-                        bytes4 b3 = key[(4 * i) + 2] << 1 * 8;
-                        bytes4 b4 = key[(4 * i) + 3];
+                        bytes32 k = 0;
+                        bytes32 fourByteChunk = 0;
 
                         // construct the 4-byte chunk
-                        bytes32 fourByteChunk = b1 | b2 | b3 | b4;
+                        fourByteChunk = fourByteChunk | key[(4 * i)];
+                        fourByteChunk = fourByteChunk << 8;
+                        fourByteChunk = fourByteChunk | key[(4 * i) + 1];
+                        fourByteChunk = fourByteChunk << 8;
+                        fourByteChunk = fourByteChunk | key[(4 * i) + 2];
+                        fourByteChunk = fourByteChunk << 8;
+                        fourByteChunk = fourByteChunk | key[(4 * i) + 3];
+                        fourByteChunk = fourByteChunk << 8;
 
                         k = fourByteChunk;
                         k = bytes32(int(k) * c1);
