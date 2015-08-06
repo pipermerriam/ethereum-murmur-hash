@@ -10,6 +10,42 @@ contract MurmurHash {
         int constant m = 5;
         int constant n = 0xe6546b64;
 
+        function rotateBits(bytes32 v, int offset) returns (bytes32 _v) {
+                for (uint i = 0; i < 32 * 8; i++) {
+                        if ( uint(v) & (2 ** i) == 1 ) {
+                                _v = bytes32(int(_v) & (2 ** ((offset + int(i)) % (32 * 8))));
+                        }
+                }
+                return _v;
+        }
+
+        function rotateBitsLeft(bytes32 v, uint offset) returns (bytes32 _v) {
+                return rotateBits(v, int(offset));
+        }
+
+        function rotateBitsRight(bytes32 v, uint offset) returns (bytes32 _v) {
+                return rotateBits(v, int(offset) * -1);
+        }
+
+        function shiftBits(bytes32 v, int offset) returns (bytes32 _v) {
+                for (uint i = 0; i < 32 * 8; i++) {
+                        if ( uint(v) & (2 ** i) == 1 ) {
+                                if ( ( 0 <= int(i) + offset ) && ( int(i) + offset < 32 * 8 ) ) {
+                                        _v = bytes32(int(_v) & (2 ** (int(i) + offset)));
+                                }
+                        }
+                }
+                return _v;
+        }
+
+        function shiftBitsLeft(bytes32 v, uint offset) returns (bytes32 _v) {
+                return shiftBits(v, int(offset));
+        }
+
+        function shiftBitsRight(bytes32 v, uint offset) returns (bytes32 _v) {
+                return shiftBits(v, int(offset) * -1);
+        }
+
         function digest(bytes key, int seed) returns (bytes32 _hash) {
                 //
                 // Compute and return a Murmur3 Hash.
@@ -27,20 +63,20 @@ contract MurmurHash {
 
                         // construct the 4-byte chunk
                         fourByteChunk = fourByteChunk | key[(4 * i)];
-                        fourByteChunk = fourByteChunk << 8;
+                        fourByteChunk = shiftBitsLeft(fourByteChunk, 8);
                         fourByteChunk = fourByteChunk | key[(4 * i) + 1];
-                        fourByteChunk = fourByteChunk << 8;
+                        fourByteChunk = shiftBitsLeft(fourByteChunk, 8);
                         fourByteChunk = fourByteChunk | key[(4 * i) + 2];
-                        fourByteChunk = fourByteChunk << 8;
+                        fourByteChunk = shiftBitsLeft(fourByteChunk, 8);
                         fourByteChunk = fourByteChunk | key[(4 * i) + 3];
-                        fourByteChunk = fourByteChunk << 8;
+                        fourByteChunk = shiftBitsLeft(fourByteChunk, 8);
 
                         k = fourByteChunk;
+                        k = rotateBitsLeft(k, uint(r1));
                         k = bytes32(int(k) * c1);
-                        k = k << r1;
 
                         _hash = _hash ^ k;
-                        _hash = _hash << r2;
+                        _hash = rotateBitsLeft(_hash, uint(r2));
                         _hash = bytes32(int(_hash) * m + n);
                 }
 
@@ -57,22 +93,22 @@ contract MurmurHash {
                                 // needs to be switched to `key[numChunks * 4 +
                                 // i]` to grab the bytes in the reverse order.
                                 tail = tail | key[key.length - i];
-                                tail = tail << 8;
+                                tail = shiftBitsLeft(tail, 8);
                         }
 
                         tail = bytes32(int(tail) * c1);
-                        tail = tail << r1;
+                        tail = rotateBitsLeft(tail, uint(r1));
                         tail = bytes32(int(tail) * c2);
 
                         _hash = _hash ^ tail;
                 }
 
                 _hash = _hash ^ bytes32(key.length);
-                _hash = _hash ^ (_hash >> 16);
+                _hash = _hash ^ shiftBitsRight(_hash, 16);
                 _hash = bytes32(int(_hash) * 0x85ebca6b);
-                _hash = _hash ^ (_hash >> 13);
+                _hash = _hash ^ shiftBitsRight(_hash, 13);
                 _hash = bytes32(int(_hash) * 0xc2b2ae35);
-                _hash = _hash ^ (_hash >> 16);
+                _hash = _hash ^ shiftBitsRight(_hash, 16);
 
                 return _hash;
         }
