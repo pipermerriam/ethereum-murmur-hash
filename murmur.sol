@@ -10,7 +10,7 @@ contract MurmurHash {
         int constant m = 5;
         int constant n = 0xe6546b64;
 
-        function rotateBits(bytes32 v, int offset) returns (bytes32 _v) {
+        function rotateBits(bytes32 v, int offset) private returns (bytes32 _v) {
                 for (uint i = 0; i < 32 * 8; i++) {
                         uint bitValue = uint(v) & 2 ** i;
                         if ( bitValue != 0x0 ) {
@@ -21,15 +21,15 @@ contract MurmurHash {
                 return _v;
         }
 
-        function rotateBitsLeft(bytes32 v, uint offset) returns (bytes32 _v) {
+        function rotateBitsLeft(bytes32 v, uint offset) private returns (bytes32 _v) {
                 return rotateBits(v, int(offset));
         }
 
-        function rotateBitsRight(bytes32 v, uint offset) returns (bytes32 _v) {
+        function rotateBitsRight(bytes32 v, uint offset) private returns (bytes32 _v) {
                 return rotateBits(v, int(offset) * -1);
         }
 
-        function shiftBits(bytes32 v, int offset) returns (bytes32 _v) {
+        function shiftBits(bytes32 v, int offset) private returns (bytes32 _v) {
                 for (uint i = 0; i < 32 * 8; i++) {
                         uint bitValue = uint(v) & 2 ** i;
                         if ( bitValue != 0x0 ) {
@@ -42,15 +42,15 @@ contract MurmurHash {
                 return _v;
         }
 
-        function shiftBitsLeft(bytes32 v, uint offset) returns (bytes32 _v) {
+        function shiftBitsLeft(bytes32 v, uint offset) private returns (bytes32 _v) {
                 return shiftBits(v, int(offset));
         }
 
-        function shiftBitsRight(bytes32 v, uint offset) returns (bytes32 _v) {
+        function shiftBitsRight(bytes32 v, uint offset) private returns (bytes32 _v) {
                 return shiftBits(v, int(offset) * -1);
         }
 
-        function digest(bytes key, int seed) returns (bytes32 _hash) {
+        function digest(bytes key, uint seed) returns (bytes32 _hash) {
                 //
                 // Compute and return a Murmur3 Hash.
                 // - https://en.wikipedia.org/wiki/MurmurHash
