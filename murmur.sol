@@ -12,8 +12,10 @@ contract MurmurHash {
 
         function rotateBits(bytes32 v, int offset) returns (bytes32 _v) {
                 for (uint i = 0; i < 32 * 8; i++) {
-                        if ( uint(v) & (2 ** i) == 1 ) {
-                                _v = bytes32(int(_v) & (2 ** ((offset + int(i)) % (32 * 8))));
+                        uint bitValue = uint(v) & 2 ** i;
+                        if ( bitValue != 0x0 ) {
+                                uint targetBit = uint((offset + int(i)) % (32 * 8));
+                                _v = bytes32(uint(_v) | 2 ** (targetBit));
                         }
                 }
                 return _v;
@@ -29,9 +31,11 @@ contract MurmurHash {
 
         function shiftBits(bytes32 v, int offset) returns (bytes32 _v) {
                 for (uint i = 0; i < 32 * 8; i++) {
-                        if ( uint(v) & (2 ** i) == 1 ) {
-                                if ( ( 0 <= int(i) + offset ) && ( int(i) + offset < 32 * 8 ) ) {
-                                        _v = bytes32(int(_v) & (2 ** (int(i) + offset)));
+                        uint bitValue = uint(v) & 2 ** i;
+                        if ( bitValue != 0x0 ) {
+                                int targetBit = int(i) + offset;
+                                if ( ( 0 <= targetBit ) && ( targetBit < 32 * 8 ) ) {
+                                        _v = bytes32(uint(_v) | 2 ** (uint(targetBit)));
                                 }
                         }
                 }
